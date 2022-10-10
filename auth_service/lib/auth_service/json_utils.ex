@@ -16,7 +16,7 @@ defmodule AuthService.JSONUtils do
       |> Jason.Encoder.encode(options)
     end
 
-    def normaliseMongoI(document) do
+    def normaliseMongoId(document) do
       document
       # Set the id property to the value if _id
       |> Map.put('id', document["_id"])
