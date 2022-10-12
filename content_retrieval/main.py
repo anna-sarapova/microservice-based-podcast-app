@@ -71,7 +71,7 @@ class Podcast(Resource):
 
 
 api.add_resource(PodcastList, "/podcasts")
-api.add_resource(Podcast, "/podcasts/<int:podcast_id>")
+api.add_resource(Podcast, "/podcast/<int:podcast_id>")
 
 if __name__ == "__main__":
     app.run(debug=True)
