@@ -75,19 +75,17 @@ defmodule AuthService.Router do
     end
   end
 
-#  get "/status" do
-##    status = put_status(conn, :ok)
-#    port = conn.port
-#    a = Mongo.find(:mongo, "Users", %{})
-#    Logger.info("users #{inspect(a)}")
-#    registered_users = Map.keys(Mongo.find(:mongo, "Users", %{}))
-#    Logger.info("#{inspect(registered_users)}")
-#    Logger.info("#{inspect(registered_users.docs)}")
-#    number_of_users = Enum.count(registered_users.docs)
-#    response = %{status: "200", port: port, registered_users: number_of_users}
-#    encoded_response = Jason.encode!(response)
-#    send_resp(conn, 200, encoded_response)
-#  end
+  get "/status" do
+#    status = put_status(conn, :ok)
+    port = conn.port
+    cursor = Mongo.find(:mongo, "Users", %{})
+#    Logger.info("users #{inspect(cursor)}", ansi_color: :yellow)
+#    Logger.info("users #{inspect(Enum.count(Map.get(cursor, :docs)))}", ansi_color: :cyan)
+    number_of_users = Enum.count(Map.get(cursor, :docs))
+    response = %{status: "200", port: port, registered_users: number_of_users}
+    encoded_response = Jason.encode!(response)
+    send_resp(conn, 200, encoded_response)
+  end
 
   # Fallback handler when there was no match
   match _ do
