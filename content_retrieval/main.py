@@ -1,10 +1,6 @@
 from flask import Flask, request
 from flask_restful import Api, Resource, reqparse, abort, fields, marshal_with
 from flask_sqlalchemy import SQLAlchemy
-import requests
-from sqlalchemy import select
-from sqlalchemy.orm import load_only, mapper
-from sqlalchemy.orm import defer, undefer
 
 app = Flask(__name__)
 api = Api(app)
@@ -42,12 +38,13 @@ resource_fields = {
 
 
 class PodcastList(Resource):
-    @marshal_with(resource_fields)
     def get(self):
-        # args = podcast_put_arg.parse_args()
         podcast_list = PodcastModel.query.all()
-        # podcast_list = PodcastModel.query.filter_by(name=args["name"]).all()
-        return podcast_list
+        filtered_podcast_list = [
+            (podcast_list[i].name, podcast_list[i].description)
+            for i in range(len(podcast_list))
+        ]
+        return filtered_podcast_list
 
 
 class Podcast(Resource):
