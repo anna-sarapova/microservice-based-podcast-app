@@ -70,7 +70,7 @@ defmodule AuthService.Router do
           send_resp(conn, 404, "User not found")
         end
       _ ->
-        Logger.info("received #{inspect(conn.body_params)}", ansi_color: :blue)
+        Logger.info("received #{inspect(conn.body_params)}", ansi_color: :yellow)
         send_resp(conn, 400, '')
     end
   end
