@@ -70,10 +70,10 @@ defmodule GatewayService.Router do
     case HTTPoison.get(request_url) do
       {:ok, response} ->
         Logger.info("response: #{inspect(response)}", ansi_color: :green)
-        encoded_response = Jason.encode!(response.body)
+#        encoded_response = Jason.encode!(response.body)
         conn
         |> put_resp_content_type("application/json")
-        |> send_resp(200, encoded_response)
+        |> send_resp(200, response.body)
       {:error, reason} ->
         Logger.info("reason: #{inspect(reason)}", ansi_color: :magenta)
         send_resp(conn, 404, reason)
@@ -88,10 +88,10 @@ defmodule GatewayService.Router do
     case HTTPoison.get(request_url) do
       {:ok, response} ->
         Logger.info("response: #{inspect(response)}", ansi_color: :green)
-        encoded_response = Jason.encode!(response.body)
+#        encoded_response = Jason.encode!(response.body)
         conn
         |> put_resp_content_type("application/json")
-        |> send_resp(200, encoded_response)
+        |> send_resp(200, response.body)
       {:error, reason} ->
         Logger.info("reason: #{inspect(reason)}", ansi_color: :magenta)
         send_resp(conn, 404, reason)
