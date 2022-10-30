@@ -13,27 +13,26 @@ class PodcastModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     description = db.Column(db.String, nullable=False)
-    podcast = db.Column(db.String, nullable=False)
+    podcast_file = db.Column(db.String, nullable=False)
 
     def __repr__(self):
-        return f"Podcast(name = {self.name}, description = {self.description}, podcast = {self.podcast})"
+        return f"Podcast(name = {self.name}, description = {self.description}, podcast_file = {self.podcast_file})"
 
 
 # Creates the database following the above model
-# db.create_all()
-
+db.create_all()
 
 podcast_put_arg = reqparse.RequestParser()
 podcast_put_arg.add_argument("name", type=str, help="Missing name of the podcast", required=True)
 podcast_put_arg.add_argument("description", type=str, help="Missing description of the podcast", required=True)
-podcast_put_arg.add_argument("podcast", type=str, help="The podcast", required=True)
+podcast_put_arg.add_argument("podcast_file", type=str, help="The podcast", required=True)
 
 # decorator for extracting data from the database
 resource_fields = {
     'id': fields.Integer,
     'name': fields.String,
     'description': fields.String,
-    'podcast': fields.String
+    'podcast_file': fields.String
 }
 
 
@@ -61,7 +60,7 @@ class Podcast(Resource):
         result = PodcastModel.query.filter_by(id=podcast_id).first()
         if result:
             abort(409, message="Podcast id taken..")
-        podcast = PodcastModel(id=podcast_id, name=args['name'], description=args['description'], podcast=args['podcast'])
+        podcast = PodcastModel(id=podcast_id, name=args['name'], description=args['description'], podcast_file=args['podcast_file'])
         db.session.add(podcast)  # adding temporarily the podcast to the DB session
         db.session.commit()      # adding permanently the podcast to the DB
         return podcast, 201
