@@ -31,6 +31,9 @@ defmodule GatewayService.Router do
   post "/register" do
     request_url = "http://localhost:8080/register"
     request_body = conn.body_params
+#    ExBreak.call(&register_user/2, [request_url, request_body], threshold: 2, on_trip: fn breaker ->
+#      Logger.error("Breaker tripped after #{breaker.break_count} breaks")
+#    end)
     case HTTPoison.post(request_url, request_body, [{"Accept", "application/json"}]) do
       {:ok, response} ->
         encoded_response = Jason.encode!(response)
