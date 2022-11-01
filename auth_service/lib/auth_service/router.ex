@@ -29,13 +29,19 @@ defmodule AuthService.Router do
   end
 
   get "/healthcheck" do
+    TaskTimeout.start_link(3000, conn)
     case Mongo.command(:mongo, ping: 1) do
-      {:ok, _res} -> send_resp(conn, 200, "All good")
-      {:error, _err} -> send_resp(conn, 500, "Something went wrong")
+      {:ok, _res} ->
+        send_resp(conn, 200, "All good")
+        TaskTimeout.stop_timer()
+      {:error, _err} ->
+        TaskTimeout.stop_timer()
+        send_resp(conn, 500, "Something went wrong")
     end
   end
 
   post "/register" do
+    TaskTimeout.start_link(3000, conn)
     case conn.body_params do
       %{"name" => name, "email" => email, "password" => password} ->
         case Mongo.insert_one(:mongo, "Users", %{"name" => name, "email" => email, "password" => password}) do
@@ -46,43 +52,52 @@ defmodule AuthService.Router do
 #              JSON.normaliseMongoId(document)
 #              |> Jason.encode!()
             response = Jason.encode!(document)
+            TaskTimeout.stop_timer()
             conn
             # Sets the value of the "content-type" response header
             |> put_resp_content_type("application/json")
             |> send_resp(200, response)
           {:error, _} ->
+            TaskTimeout.stop_timer()
             send_resp(conn, 500, "Something went wrong")
         end
       _ ->
+        TaskTimeout.stop_timer()
         send_resp(conn, 400, '')
     end
   end
 
   post "/login" do
+    TaskTimeout.start_link(3000, conn)
     Logger.info("received #{inspect(conn.body_params)}", ansi_color: :blue)
     case conn.body_params do
       %{"email" => email, "password" => password} ->
         found_user = Mongo.find_one(:mongo, "Users", %{email: email, password: password})
         if found_user do
           Logger.info("found user #{inspect(found_user)}", ansi_color: :light_magenta)
+          TaskTimeout.stop_timer()
           send_resp(conn, 200, "Login Successful")
         else
+          TaskTimeout.stop_timer()
           send_resp(conn, 404, "User not found")
         end
       _ ->
         Logger.info("received #{inspect(conn.body_params)}", ansi_color: :yellow)
+        TaskTimeout.stop_timer()
         send_resp(conn, 400, '')
     end
   end
 
   get "/status" do
-#    status = put_status(conn, :ok)
+    TaskTimeout.start_link(3000, conn)
+    #    status = put_status(conn, :ok)
     port = conn.port
     cursor = Mongo.find(:mongo, "Users", %{})
 #    Logger.info("users #{inspect(cursor)}", ansi_color: :yellow)
 #    Logger.info("users #{inspect(Enum.count(Map.get(cursor, :docs)))}", ansi_color: :cyan)
     number_of_users = Enum.count(Map.get(cursor, :docs))
     response = %{status: "200", port: port, registered_users: number_of_users}
+    TaskTimeout.stop_timer()
     encoded_response = Jason.encode!(response)
     send_resp(conn, 200, encoded_response)
   end
@@ -90,6 +105,12 @@ defmodule AuthService.Router do
   # Fallback handler when there was no match
   match _ do
     send_resp(conn, 404, "Not Found")
+  end
+
+  def get_timeout(response, connection) do
+    connection
+    |> Plug.Conn.resp(408, response)
+    |> Plug.Conn.send_resp()
   end
 
 end
