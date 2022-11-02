@@ -29,76 +29,19 @@ defmodule GatewayService.Router do
   end
 
   post "/register" do
-    request_url = "http://localhost:8080/register"
-    request_body = conn.body_params
-    case HTTPoison.post(request_url, request_body, [{"Accept", "application/json"}]) do
-      {:ok, response} ->
-        encoded_response = Jason.encode!(response)
-        conn
-        |> put_resp_content_type("application/json")
-        |> send_resp(200, encoded_response)
-      {:error, reason} ->
-        Logger.info("reason: #{reason}", ansi_color: :magenta)
-        send_resp(conn, 500, reason)
-    end
+    GatewayService.RegisterPlug.register_user(conn)
   end
 
   post "/login" do
-    request_url = "http://localhost:8080/login"
-    request_body = conn.body_params
-#    request_body = %{"email" => "tammy@mail.com", "password" => "secret"}
-    Logger.info("req_body: #{inspect(request_body)}", ansi_color: :green)
-    encoded_body = Jason.encode!(request_body)
-#    Logger.info("encoded: #{inspect(request_body)}", ansi_color: :green)
-    headers = [{"Content-type", "application/json"}]
-    case HTTPoison.post(request_url, encoded_body, headers, []) do
-#    case HTTPoison.request(:post, request_url, request_body, headers, []) do
-      {:ok, response} ->
-        Logger.info("response: #{inspect(response)}", ansi_color: :green)
-        Logger.info("response: #{inspect(response.body)}", ansi_color: :green)
-        encoded_response = Jason.encode!(response.body)
-        conn
-        |> put_resp_content_type("application/json")
-        |> send_resp(200, encoded_response)
-      {:error, reason} ->
-        Logger.info("reason: #{inspect(reason)}", ansi_color: :magenta)
-        send_resp(conn, 404, reason)
-    end
+    GatewayService.LoginPlug.login_user(conn)
   end
 
   get "/podcasts" do
-    request_url = "http://localhost:5000/podcasts"
-#    params = conn.path_params
-#    Logger.info("params: #{inspect(params)}", ansi_color: :green)
-    case HTTPoison.get(request_url) do
-      {:ok, response} ->
-        Logger.info("response: #{inspect(response)}", ansi_color: :green)
-#        encoded_response = Jason.encode!(response.body)
-        conn
-        |> put_resp_content_type("application/json")
-        |> send_resp(200, response.body)
-      {:error, reason} ->
-        Logger.info("reason: #{inspect(reason)}", ansi_color: :magenta)
-        send_resp(conn, 404, reason)
-    end
+    GatewayService.PodcastsPlug.get_podcasts(conn)
   end
 
   get "/podcast/:id" do
-        params = conn.path_params
-    request_url = "http://localhost:5000/podcast/" <> "#{params["id"]}"
-#    Logger.info("params: #{inspect(params["id"])}", ansi_color: :green)
-#    case HTTPoison.get(request_url, [], params: %{id: params["id"]}) do
-    case HTTPoison.get(request_url) do
-      {:ok, response} ->
-        Logger.info("response: #{inspect(response)}", ansi_color: :green)
-#        encoded_response = Jason.encode!(response.body)
-        conn
-        |> put_resp_content_type("application/json")
-        |> send_resp(200, response.body)
-      {:error, reason} ->
-        Logger.info("reason: #{inspect(reason)}", ansi_color: :magenta)
-        send_resp(conn, 404, reason)
-    end
+    GatewayService.PodcastByIdPlug.get_podcast_by_id(conn)
   end
 
   # Fallback handler when there was no match
