@@ -3,6 +3,7 @@ defmodule AuthService.RegisterPlug do
   require Logger
 
   def register_user(conn) do
+    {:ok, timer_pid} = AuthService.TaskTimeout.start_link(3000, conn)
     case conn.body_params do
       %{"name" => name, "email" => email, "password" => password} ->
         case Mongo.insert_one(:mongo, "Users", %{"name" => name, "email" => email, "password" => password}) do
@@ -13,14 +14,17 @@ defmodule AuthService.RegisterPlug do
             #              JSON.normaliseMongoId(document)
             #              |> Jason.encode!()
             response = Jason.encode!(document)
+            AuthService.TaskTimeout.stop_timer(timer_pid)
             conn
             # Sets the value of the "content-type" response header
             |> put_resp_content_type("application/json")
             |> send_resp(200, response)
           {:error, _} ->
+            AuthService.TaskTimeout.stop_timer(timer_pid)
             send_resp(conn, 500, "Something went wrong")
         end
       _ ->
+        AuthService.TaskTimeout.stop_timer(timer_pid)
         send_resp(conn, 400, '')
     end
   end
