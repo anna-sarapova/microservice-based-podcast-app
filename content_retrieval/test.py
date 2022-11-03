@@ -2,9 +2,9 @@ import requests
 
 BASE = " http://127.0.0.1:5000/"
 
-data = [{"name": "How to draw", "description": "Like this", "podcast_file": "sample-3s.mp3"},
-        {"name": "Moana", "description": "Hollaaa", "podcast_file": "sample-6s.mp3"},
-        {"name": "How to make a pie", "description": "The pie is a simple ", "podcast_file": "sample-6s.mp3"}]
+data = [{"name": "How to create a microservice based app", "description": "Like this", "podcast_file": "1s-sample.wav"},
+        {"name": "How to make a pie", "description": "The pie is a simple recipe", "podcast_file": "8s-sample.wav"},
+        {"name": "The art of making tea", "description": "This is the podcast for making tea", "podcast_file": "33s-sample.wav"}]
 
 # get all the data from the db
 response = requests.get(BASE + "podcasts")
