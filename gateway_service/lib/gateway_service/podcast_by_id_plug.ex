@@ -2,7 +2,19 @@ defmodule GatewayService.PodcastByIdPlug do
   import Plug.Conn
   require Logger
 
+  @retry_errors [408, 500, 503]
+  @retry_options %ExternalService.RetryOptions{
+    #    Backoff strategy args: type_of_backoff(linear or exponential), delay, multiplication factor(only for linear)
+    backoff: {:linear, 100, 1},
+    #    Stop retrying after 5 seconds
+    expiry: 5_000
+  }
+
   def get_podcast_by_id(conn) do
+    ExternalService.call(:gateway_circuit_breaker, @retry_options, fn -> try_get_podcast(conn) end)
+  end
+
+  def try_get_podcast(conn) do
     params = conn.path_params
     request_url = "http://localhost:5000/podcast/" <> "#{params["id"]}"
     #    Logger.info("params: #{inspect(params["id"])}", ansi_color: :green)
@@ -14,9 +26,11 @@ defmodule GatewayService.PodcastByIdPlug do
         conn
         |> put_resp_content_type("application/json")
         |> send_resp(200, response.body)
-      {:error, reason} ->
+#      {:error, reason} ->
+      {:error, reason, code} when code in @retry_errors ->
         Logger.info("reason: #{inspect(reason)}", ansi_color: :magenta)
-        send_resp(conn, 404, reason)
+        {:retry, reason}
+#        send_resp(conn, 404, reason)
     end
   end
 

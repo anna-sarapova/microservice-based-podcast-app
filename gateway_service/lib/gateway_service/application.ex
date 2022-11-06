@@ -5,6 +5,16 @@ defmodule GatewayService.Application do
 
   use Application
 
+  @fuse_name :gateway_circuit_breaker
+  @fuse_options [
+#    Tolerate 5 failures for every 1 second time window
+    fuse_strategy: {:standard, 5, 1_000},
+#    Reset the fuse 5 seconds after it is blown
+    fuse_refresh: 5_000,
+#    Limit to 100 calls per second
+    rate_limit: {100, 1_000}
+  ]
+
   @impl true
   def start(_type, _args) do
     children = [
@@ -12,8 +22,12 @@ defmodule GatewayService.Application do
         Plug.Cowboy,
         scheme: :http,
         plug: GatewayService.Router,
-        options: [port: Application.get_env(:gateway_service, :port)
+        options: [
+          port: Application.get_env(:gateway_service, :port)
         ]
+      },
+      {
+        GatewayService.CircuitBreaker, @fuse_name, @fuse_options
       }
     ]
     # See https://hexdocs.pm/elixir/Supervisor.html
