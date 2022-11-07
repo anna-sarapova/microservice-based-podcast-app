@@ -36,55 +36,15 @@ defmodule AuthService.Router do
   end
 
   post "/register" do
-    case conn.body_params do
-      %{"name" => name, "email" => email, "password" => password} ->
-        case Mongo.insert_one(:mongo, "Users", %{"name" => name, "email" => email, "password" => password}) do
-          {:ok, user} ->
-            Logger.info("received #{inspect(user)}", ansi_color: :light_magenta)
-            document = Mongo.find_one(:mongo, "Users", %{_id: user.inserted_id})
-#            response =
-#              JSON.normaliseMongoId(document)
-#              |> Jason.encode!()
-            response = Jason.encode!(document)
-            conn
-            # Sets the value of the "content-type" response header
-            |> put_resp_content_type("application/json")
-            |> send_resp(200, response)
-          {:error, _} ->
-            send_resp(conn, 500, "Something went wrong")
-        end
-      _ ->
-        send_resp(conn, 400, '')
-    end
+    AuthService.RegisterPlug.register_user(conn)
   end
 
   post "/login" do
-    Logger.info("received #{inspect(conn.body_params)}", ansi_color: :blue)
-    case conn.body_params do
-      %{"email" => email, "password" => password} ->
-        found_user = Mongo.find_one(:mongo, "Users", %{email: email, password: password})
-        if found_user do
-          Logger.info("found user #{inspect(found_user)}", ansi_color: :light_magenta)
-          send_resp(conn, 200, "Login Successful")
-        else
-          send_resp(conn, 404, "User not found")
-        end
-      _ ->
-        Logger.info("received #{inspect(conn.body_params)}", ansi_color: :yellow)
-        send_resp(conn, 400, '')
-    end
+    AuthService.LoginPlug.login_user(conn)
   end
 
   get "/status" do
-#    status = put_status(conn, :ok)
-    port = conn.port
-    cursor = Mongo.find(:mongo, "Users", %{})
-#    Logger.info("users #{inspect(cursor)}", ansi_color: :yellow)
-#    Logger.info("users #{inspect(Enum.count(Map.get(cursor, :docs)))}", ansi_color: :cyan)
-    number_of_users = Enum.count(Map.get(cursor, :docs))
-    response = %{status: "200", port: port, registered_users: number_of_users}
-    encoded_response = Jason.encode!(response)
-    send_resp(conn, 200, encoded_response)
+    AuthService.StatusPlug.status_endpoint(conn)
   end
 
   # Fallback handler when there was no match
