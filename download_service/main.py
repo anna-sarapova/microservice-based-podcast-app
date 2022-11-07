@@ -75,3 +75,6 @@ api.add_resource(GetChunk, "/download/<int:podcast_id>/<int:chunk_id>")
 
 if __name__ == "__main__":
     app.run(port=5005, debug=True)
+    personal_data = {"name": "download_service", "address": "http://127.0.0.1", "port": 5005, "status": "active"}
+    requests.post('http://127.0.0.1:8008/register_me', json=personal_data)
+    print("Register request was sent")
