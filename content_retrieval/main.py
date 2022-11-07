@@ -1,3 +1,4 @@
+import requests
 from flask import Flask
 from flask_restful import Api, Resource, reqparse, abort, fields, marshal_with
 from flask_sqlalchemy import SQLAlchemy
@@ -70,4 +71,7 @@ api.add_resource(PodcastList, "/podcasts")
 api.add_resource(Podcast, "/podcast/<int:podcast_id>")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(port=5000, debug=True)
+    personal_data = {"name": "content_retrieval", "address": "http://127.0.0.1", "port": 5000, "status": "active"}
+    requests.post('http://127.0.0.1:8008/register_me', json=personal_data)
+    print("Register request was sent")
