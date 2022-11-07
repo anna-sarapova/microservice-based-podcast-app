@@ -17,6 +17,7 @@ defmodule GatewayService.Application do
 
   @impl true
   def start(_type, _args) do
+    ExternalService.start(@fuse_name, @fuse_options)
     children = [
       {
         Plug.Cowboy,
@@ -25,9 +26,6 @@ defmodule GatewayService.Application do
         options: [
           port: Application.get_env(:gateway_service, :port)
         ]
-      },
-      {
-        GatewayService.CircuitBreaker, @fuse_name, @fuse_options
       }
     ]
     # See https://hexdocs.pm/elixir/Supervisor.html

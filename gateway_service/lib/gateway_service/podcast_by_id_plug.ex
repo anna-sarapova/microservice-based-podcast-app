@@ -26,11 +26,14 @@ defmodule GatewayService.PodcastByIdPlug do
         conn
         |> put_resp_content_type("application/json")
         |> send_resp(200, response.body)
-#      {:error, reason} ->
-      {:error, reason, code} when code in @retry_errors ->
+      {:error, reason} ->
+        #      {:error, reason, code} when code in @retry_errors ->
         Logger.info("reason: #{inspect(reason)}", ansi_color: :magenta)
         {:retry, reason}
-#        send_resp(conn, 404, reason)
+      #        send_resp(conn, 503, reason)
+      {:error, {:retries_exhausted, reason}} ->
+        Logger.info("reason: #{inspect(reason)}", ansi_color: :magenta)
+        send_resp(conn, 503, reason)
     end
   end
 

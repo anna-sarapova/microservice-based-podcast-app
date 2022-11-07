@@ -23,11 +23,14 @@ defmodule GatewayService.RegisterPlug do
         conn
         |> put_resp_content_type("application/json")
         |> send_resp(200, encoded_response)
-#      {:error, reason} ->
-      {:error, reason, code} when code in @retry_errors ->
-        Logger.info("reason: #{reason}", ansi_color: :magenta)
+      {:error, reason} ->
+        #      {:error, reason, code} when code in @retry_errors ->
+        Logger.info("reason: #{inspect(reason)}", ansi_color: :magenta)
         {:retry, reason}
-#        send_resp(conn, 500, reason)
+      #        send_resp(conn, 503, reason)
+      {:error, {:retries_exhausted, reason}} ->
+        Logger.info("reason: #{inspect(reason)}", ansi_color: :magenta)
+        send_resp(conn, 503, reason)
     end
   end
 
