@@ -43,7 +43,8 @@ defmodule GatewayService.PodcastByIdPlug do
   end
 
   def find_service(service_registry, params) do
-    service = Enum.find(service_registry, fn service -> service["name"] == @service_name end)
+    services = Enum.filter(service_registry, fn service -> service["name"] == @service_name end)
+    service = Enum.at(services, rem(System.unique_integer([:positive, :monotonic]), 3))
     request_url = "#{service["address"]}:#{service["port"]}/podcast/#{params}"
   end
 

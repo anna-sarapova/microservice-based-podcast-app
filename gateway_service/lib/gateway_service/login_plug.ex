@@ -50,8 +50,13 @@ defmodule GatewayService.LoginPlug do
   end
 
   def find_service(service_registry) do
-    service = Enum.find(service_registry, fn service -> service["name"] == @service_name end)
+    services = Enum.filter(service_registry, fn service -> service["name"] == @service_name end)
+#    TODO round robin load balancing
+    Logger.info(inspect(services), ansi_color: :yellow)
+    service = Enum.at(services, rem(System.unique_integer([:positive, :monotonic]), 3))
     request_url = "#{service["address"]}:#{service["port"]}/login"
+#    Logger.info(request_url, ansi_color: :yellow)
+#    request_url
   end
 
 end
