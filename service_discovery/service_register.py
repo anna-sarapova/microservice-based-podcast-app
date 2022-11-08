@@ -11,7 +11,7 @@ service_registry = []  # this is a list of dictionaries
 class RegisterMe(Resource):
     def post(self):
         print("Data in service registry", service_registry)
-        data = request.get_json()
+        data = request.get_json(force=True)
         updated_list = update_dictionary(data)
         # health_check()
         print("Updated list from Post request ", updated_list)
