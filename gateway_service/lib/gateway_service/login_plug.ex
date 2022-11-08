@@ -9,37 +9,49 @@ defmodule GatewayService.LoginPlug do
     #    Stop retrying after 5 seconds
     expiry: 5_000
   }
+  @service_discovery_address "http://127.0.0.1:8008/service_registry"
+  @service_name "auth_service"
 
   def login_user(conn) do
     ExternalService.call(:gateway_circuit_breaker, @retry_options, fn -> try_login(conn) end)
   end
 
   def try_login(conn) do
-    request_url = "http://localhost:8080/login"
-    request_body = conn.body_params
-    #    request_body = %{"email" => "tammy@mail.com", "password" => "secret"}
-    Logger.info("req_body: #{inspect(request_body)}", ansi_color: :green)
-    encoded_body = Jason.encode!(request_body)
-    #    Logger.info("encoded: #{inspect(request_body)}", ansi_color: :green)
-    headers = [{"Content-type", "application/json"}]
-    case HTTPoison.post(request_url, encoded_body, headers, []) do
-      #    case HTTPoison.request(:post, request_url, request_body, headers, []) do
+    case HTTPoison.get(@service_discovery_address) do
       {:ok, response} ->
-        Logger.info("response: #{inspect(response)}", ansi_color: :green)
-        Logger.info("response: #{inspect(response.body)}", ansi_color: :green)
-        encoded_response = Jason.encode!(response.body)
-        conn
-        |> put_resp_content_type("application/json")
-        |> send_resp(200, encoded_response)
-      {:error, reason} ->
-#      {:error, reason, code} when code in @retry_errors ->
-        Logger.info("reason: #{inspect(reason)}", ansi_color: :magenta)
-        {:retry, reason}
-#        send_resp(conn, 503, reason)
-      {:error, {:retries_exhausted, reason}} ->
-        Logger.info("reason: #{inspect(reason)}", ansi_color: :magenta)
-        send_resp(conn, 503, reason)
+        service_registry = Jason.decode!(response.body)
+        #        Logger.info(inspect(service_registry), ansi_color: :yellow)
+        request_url = find_service(service_registry)
+        request_body = conn.body_params
+        #    request_body = %{"email" => "tammy@mail.com", "password" => "secret"}
+        Logger.info("req_body: #{inspect(request_body)}", ansi_color: :green)
+        encoded_body = Jason.encode!(request_body)
+        #    Logger.info("encoded: #{inspect(request_body)}", ansi_color: :green)
+        headers = [{"Content-type", "application/json"}]
+        case HTTPoison.post(request_url, encoded_body, headers, []) do
+          #    case HTTPoison.request(:post, request_url, request_body, headers, []) do
+          {:ok, response} ->
+            Logger.info("response: #{inspect(response)}", ansi_color: :green)
+            Logger.info("response: #{inspect(response.body)}", ansi_color: :green)
+            encoded_response = Jason.encode!(response.body)
+            conn
+            |> put_resp_content_type("application/json")
+            |> send_resp(200, encoded_response)
+          {:error, reason} ->
+            #      {:error, reason, code} when code in @retry_errors ->
+            Logger.info("reason: #{inspect(reason)}", ansi_color: :magenta)
+            {:retry, reason}
+          #        send_resp(conn, 503, reason)
+          {:error, {:retries_exhausted, reason}} ->
+            Logger.info("reason: #{inspect(reason)}", ansi_color: :magenta)
+            send_resp(conn, 503, reason)
+        end
     end
+  end
+
+  def find_service(service_registry) do
+    service = Enum.find(service_registry, fn service -> service["name"] == @service_name end)
+    request_url = "#{service["address"]}:#{service["port"]}/login"
   end
 
 end
