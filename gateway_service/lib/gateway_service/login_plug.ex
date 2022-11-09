@@ -26,7 +26,7 @@ defmodule GatewayService.LoginPlug do
         #    request_body = %{"email" => "tammy@mail.com", "password" => "secret"}
         Logger.info("req_body: #{inspect(request_body)}", ansi_color: :green)
         encoded_body = Jason.encode!(request_body)
-        #    Logger.info("encoded: #{inspect(request_body)}", ansi_color: :green)
+        Logger.info("req_url: #{inspect(request_url)}", ansi_color: :green)
         headers = [{"Content-type", "application/json"}]
         case HTTPoison.post(request_url, encoded_body, headers, []) do
           #    case HTTPoison.request(:post, request_url, request_body, headers, []) do
@@ -52,8 +52,9 @@ defmodule GatewayService.LoginPlug do
   def find_service(service_registry) do
     services = Enum.filter(service_registry, fn service -> service["name"] == @service_name end)
 #    TODO round robin load balancing
-    Logger.info(inspect(services), ansi_color: :yellow)
+    Logger.info("services: #{inspect(services)}", ansi_color: :yellow)
     service = Enum.at(services, rem(System.unique_integer([:positive, :monotonic]), 3))
+    Logger.info("service: #{inspect(service)}", ansi_color: :yellow)
     request_url = "#{service["address"]}:#{service["port"]}/login"
 #    Logger.info(request_url, ansi_color: :yellow)
 #    request_url
