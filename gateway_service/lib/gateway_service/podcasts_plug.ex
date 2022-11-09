@@ -19,6 +19,10 @@ defmodule GatewayService.PodcastsPlug do
   def try_get_podcasts(conn) do
     case HTTPoison.get(@service_discovery_address) do
       {:ok, response} ->
+        service_registry = Jason.decode!(response.body)
+        #        Logger.info(inspect(service_registry), ansi_color: :yellow)]
+        params = conn.path_params
+        request_url = find_service(service_registry)
         case HTTPoison.get(request_url) do
           {:ok, response} ->
             service_registry = Jason.decode!(response.body)
@@ -42,7 +46,8 @@ defmodule GatewayService.PodcastsPlug do
   end
 
 def find_service(service_registry) do
-  service = Enum.find(service_registry, fn service -> service["name"] == @service_name end)
+  services = Enum.filter(service_registry, fn service -> service["name"] == @service_name end)
+  service = Enum.at(services, rem(System.unique_integer([:positive, :monotonic]), 3))
   request_url = "#{service["address"]}:#{service["port"]}/podcasts"
 end
 

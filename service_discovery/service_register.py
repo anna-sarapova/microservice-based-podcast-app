@@ -28,7 +28,7 @@ def update_dictionary(discovery_data):
     print("Discovery data", discovery_data)
     if len(service_registry) > 0:
         for item in service_registry:
-            if discovery_data['name'] == item['name']:
+            if discovery_data['port'] == item['port']:
                 index = service_registry.index(item)
                 service_registry[index] = discovery_data
                 print("Item is replaced")
