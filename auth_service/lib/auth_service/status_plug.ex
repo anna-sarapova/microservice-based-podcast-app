@@ -4,12 +4,12 @@ defmodule AuthService.StatusPlug do
 
   def status_endpoint(conn) do
     #    status = put_status(conn, :ok)
-    {:ok, timer_pid} = AuthService.TaskTimeout.start_link(3000, conn)
+#    {:ok, timer_pid} = AuthService.TaskTimeout.start_link(3000, conn)
     port = conn.port
     cursor = Mongo.find(:mongo, "Users", %{})
     #    Logger.info("users #{inspect(cursor)}", ansi_color: :yellow)
     #    Logger.info("users #{inspect(Enum.count(Map.get(cursor, :docs)))}", ansi_color: :cyan)
-    AuthService.TaskTimeout.stop_timer(timer_pid)
+#    AuthService.TaskTimeout.stop_timer(timer_pid)
     number_of_users = Enum.count(Map.get(cursor, :docs))
     response = %{status: "200", port: port, registered_users: number_of_users}
     encoded_response = Jason.encode!(response)

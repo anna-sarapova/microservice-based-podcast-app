@@ -8,6 +8,8 @@ defmodule AuthService3.Router do
   # Attach the Logger to log incoming requests
   plug(Plug.Logger)
 
+  plug RequestTimeout, after: 500, code: 408, err: :kill, sup: nil
+
   # Tell Plug to match the incoming request with the defined endpoints
   plug(:match)
 
