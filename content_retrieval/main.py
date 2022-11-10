@@ -39,21 +39,43 @@ resource_fields = {
 
 class PodcastList(Resource):
     def get(self):
-        podcast_list = PodcastModel.query.all()
-        filtered_podcast_list = [
-            (podcast_list[i].name, podcast_list[i].description)
-            for i in range(len(podcast_list))
-        ]
-        return filtered_podcast_list
+        response = requests.get('http://127.0.0.1:9000/cache_podcasts')
+        print("response: ", response.json())
+        podcast_list = []
+        if response.json() is None:
+            # for data in PodcastModel.query.all():
+            #     row_as_dict = data._asdict()
+            data = [row.__dict__ for row in PodcastModel.query.all()]
+            print("data: ", data)
+            for element in data:
+                new_element = {key: val for key,
+                               val in element.items() if key != '_sa_instance_state'}
+                podcast_list.append(new_element)
+            requests.post('http://127.0.0.1:9000/cache_podcasts', json=podcast_list)
+            return podcast_list
+        else:
+            print("Response: ", response.json())
+            return response.json()
 
+
+# def object_as_dict(db_data):
+#     dictionary = {}
+#     for column in db_data.__table__.column:
+#
 
 class Podcast(Resource):
     @marshal_with(resource_fields)
     def get(self, podcast_id):
-        result = PodcastModel.query.filter_by(id=podcast_id).first()
-        if not result:
-            abort(409, message="No podcast with that id..")
-        return result
+        response = requests.get('http://127.0.0.1:9000/cache_podcast/' + str(podcast_id))
+        print("Response after Get by id: ", response)
+        if response is not None:
+            return response
+        else:
+            result = PodcastModel.query.filter_by(id=podcast_id).first()
+            requests.put('http://127.0.0.1:9000/cache_podcast/' + str(podcast_id), result)
+            if not result:
+                abort(409, message="No podcast with that id..")
+            return result
 
     @marshal_with(resource_fields)  # serialise the response
     def put(self, podcast_id):

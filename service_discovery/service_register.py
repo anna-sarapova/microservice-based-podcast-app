@@ -1,4 +1,3 @@
-import requests
 from flask_restful import Api, Resource
 from flask import Flask, request
 
@@ -13,7 +12,6 @@ class RegisterMe(Resource):
         print("Data in service registry", service_registry)
         data = request.get_json(force=True)
         updated_list = update_dictionary(data)
-        # health_check()
         print("Updated list from Post request ", updated_list)
         return "Successfully registered!"
 
