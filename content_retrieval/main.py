@@ -40,11 +40,8 @@ resource_fields = {
 class PodcastList(Resource):
     def get(self):
         response = requests.get('http://127.0.0.1:9000/cache_podcasts')
-        print("response: ", response.json())
         podcast_list = []
         if response.json() is None:
-            # for data in PodcastModel.query.all():
-            #     row_as_dict = data._asdict()
             data = [row.__dict__ for row in PodcastModel.query.all()]
             print("data: ", data)
             for element in data:
@@ -58,24 +55,23 @@ class PodcastList(Resource):
             return response.json()
 
 
-# def object_as_dict(db_data):
-#     dictionary = {}
-#     for column in db_data.__table__.column:
-#
-
 class Podcast(Resource):
     @marshal_with(resource_fields)
     def get(self, podcast_id):
         response = requests.get('http://127.0.0.1:9000/cache_podcast/' + str(podcast_id))
-        print("Response after Get by id: ", response)
-        if response is not None:
-            return response
-        else:
+        print("Response after Get by id: ", response.json())
+        if response.json() is None:
             result = PodcastModel.query.filter_by(id=podcast_id).first()
-            requests.put('http://127.0.0.1:9000/cache_podcast/' + str(podcast_id), result)
-            if not result:
+            print("data: ", result.__dict__)
+            dict_result = result.__dict__
+            new_element = {key: val for key, val in dict_result.items() if key != '_sa_instance_state'}
+            print("New element:", new_element)
+            requests.post('http://127.0.0.1:9000/cache_podcast/' + str(podcast_id), json=new_element)
+            if not new_element:
                 abort(409, message="No podcast with that id..")
-            return result
+            return new_element
+        else:
+            return response.json()
 
     @marshal_with(resource_fields)  # serialise the response
     def put(self, podcast_id):
