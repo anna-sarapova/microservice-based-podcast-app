@@ -44,6 +44,14 @@ defmodule GatewayService.Router do
     GatewayService.PodcastByIdPlug.get_podcast_by_id(conn)
   end
 
+  get "/download/:podcast_id" do
+    GatewayService.DownloadPodcastPlug.download_podcast(conn)
+  end
+
+  get "/download/:podcast_id/:chunk_id" do
+    GatewayService.DownloadPodcastChunkPlug.download_podcast_by_chunk(conn)
+  end
+
   # Fallback handler when there was no match
   match _ do
     send_resp(conn, 404, "Not Found")
