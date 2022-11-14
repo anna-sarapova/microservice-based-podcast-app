@@ -48,7 +48,8 @@ class PodcastList(Resource):
                 new_element = {key: val for key,
                                val in element.items() if key != '_sa_instance_state'}
                 podcast_list.append(new_element)
-            requests.post('http://127.0.0.1:9000/cache_podcasts', json=podcast_list)
+            list_to_send = "insert_list" + "<>" + str(podcast_list)
+            requests.post('http://127.0.0.1:9000/cache_podcasts', data=list_to_send)
             return podcast_list
         else:
             print("Response: ", response.json())
@@ -66,7 +67,9 @@ class Podcast(Resource):
             dict_result = result.__dict__
             new_element = {key: val for key, val in dict_result.items() if key != '_sa_instance_state'}
             print("New element:", new_element)
-            requests.post('http://127.0.0.1:9000/cache_podcast/' + str(podcast_id), json=new_element)
+            element_to_send = "insert_item" + "<>" + str(new_element)
+            print("element to send", element_to_send)
+            requests.post('http://127.0.0.1:9000/cache_podcast/' + str(podcast_id), data=element_to_send)
             if not new_element:
                 abort(409, message="No podcast with that id..")
             return new_element

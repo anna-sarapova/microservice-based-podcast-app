@@ -1,3 +1,5 @@
+import json
+
 from flask_restful import Api, Resource
 from flask import Flask, request
 from datetime import datetime, timedelta
@@ -21,10 +23,18 @@ class CachePodcastList(Resource):
 
     def post(self):
         print("Data in cache: ", cache_list)
-        data = request.get_json()
-        updated_podcast_list = update_cache(data)
-        print("Cache list after append list: ", updated_podcast_list)
-        return "ok"
+        # data = request.get_json()
+        # updated_podcast_list = update_cache(data)
+        # print("Cache list after append list: ", updated_podcast_list)
+        # return "ok"
+        received_data = request.data
+        command, object_str = received_data.decode(encoding='utf-8').split("<>")
+        if command == "insert_list":
+            transformed_str = object_str.replace("\'", "\"")
+            object_dict = json.loads(transformed_str)
+            updated_podcast_list = update_cache(object_dict)
+            print("Cache list after append item: ", updated_podcast_list)
+            return "ok"
 
 
 def update_cache(podcast_list):
@@ -56,11 +66,19 @@ class CachePodcastItem(Resource):
     def post(self, podcast_id):
         # cache_list.append(item.json())
         print("podcast_id", podcast_id)
-        data = request.get_json()
-        print("Received item: ", data)
-        updated_podcast_list = update_item_cache(data)
-        print("Cache list after append item: ", updated_podcast_list)
-        return "ok"
+        received_data = request.data
+        command, object_str = received_data.decode(encoding='utf-8').split("<>")
+        print("Object type", type(object_str))
+        print("object string ", object_str)
+        # print("Received item: ", received_data)
+        # updated_podcast_list = update_item_cache(received_data)
+        # print("Cache list after append item: ", updated_podcast_list)
+        if command == "insert_item":
+            transformed_str = object_str.replace("\'", "\"")
+            object_dict = json.loads(transformed_str)
+            updated_podcast_list = update_item_cache(object_dict)
+            print("Cache list after append item: ", updated_podcast_list)
+            return "ok"
 
 
 def update_item_cache(podcast_item):
