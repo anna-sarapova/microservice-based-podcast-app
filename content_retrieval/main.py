@@ -56,7 +56,7 @@ class PodcastList(Resource):
 
 
 class Podcast(Resource):
-    @marshal_with(resource_fields)
+    # @marshal_with(resource_fields)
     def get(self, podcast_id):
         response = requests.get('http://127.0.0.1:9000/cache_podcast/' + str(podcast_id))
         print("Response after Get by id: ", response.json())
