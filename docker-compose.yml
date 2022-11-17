@@ -1,0 +1,86 @@
+version: "3.9"
+
+services:
+  service_discovery:
+    build:
+      context: service_discovery
+    ports:
+      - "8008:8008"
+    cap_add:
+      - NET_ADMIN
+
+  content_retrieval:
+    build:
+      context: content_retrieval
+    ports:
+      - "5000:5000"
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - service_discovery
+
+  download_service:
+    build:
+      context: download_service
+    ports:
+      - "5005:5005"
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - service_discovery
+      - content_retrieval
+
+  cache_service:
+    build:
+      context: cache_service
+    ports:
+      - "9000:9000"
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - content_retrieval
+
+  auth_service:
+    build:
+      context: auth_service
+    ports:
+      - "8080:8080"
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - service_discovery
+
+  auth_service2:
+    build:
+      context: auth_service2
+    ports:
+      - "8081:8081"
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - service_discovery
+
+  auth_service3:
+    build:
+      context: auth_service3
+    ports:
+      - "8082:8082"
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - service_discovery
+
+  gateway_service:
+    build:
+      context: gateway_service
+    ports:
+      - "8070:8070"
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - content_retrieval
+      - download_service
+      - auth_service
+      - auth_service2
+      - auth_service3
+      - service_discovery
