@@ -1,7 +1,7 @@
 import requests
 from flask_restful import Api, Resource
 from flask_sqlalchemy import SQLAlchemy
-from splitter import readwave, writewave, split
+import splitter
 from flask import Flask, make_response
 
 app = Flask(__name__)
@@ -60,12 +60,12 @@ def open_file(response_file_name):
     folder = 'audio_files/output'
     dest = folder + '/output-'
     # extract data from wav file
-    data = readwave(src)
+    data = splitter.readwave(src)
     # split file into equal 1-second intervals
-    split_files = split(data)
+    split_files = splitter.split(data)
 
     # save each 1-second interval to output as individual files
-    ex = writewave(dest + 'ex-', split_files)
+    ex = splitter.writewave(dest + 'ex-', split_files)
     print(ex)
     return ex
 
