@@ -18,7 +18,6 @@ defmodule GatewayService.Application do
   @impl true
   def start(_type, _args) do
     ExternalService.start(@fuse_name, @fuse_options)
-#    TODO timer to make get req to Service Discovery
     children = [
       {
         Plug.Cowboy,

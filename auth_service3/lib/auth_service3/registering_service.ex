@@ -2,10 +2,10 @@ defmodule RegisteringService do
   use GenServer
   require Logger
 
-  @service_discovery_address "http://127.0.0.1:8008/register_me"
+  @service_discovery_address "http://service_discovery:8008/register_me"
   @request_body %{
     name: "auth_service",
-    address: "http://localhost",
+    address: "auth_service3",
     port: 8082,
     status: "active"}
 

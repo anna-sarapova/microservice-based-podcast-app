@@ -9,7 +9,7 @@ defmodule GatewayService.PodcastByIdPlug do
     #    Stop retrying after 5 seconds
     expiry: 5_000
   }
-  @service_discovery_address "http://127.0.0.1:8008/service_registry"
+  @service_discovery_address "http://service_discovery:8008/register_me"
   @service_name "content_retrieval"
 
   def get_podcast_by_id(conn) do
