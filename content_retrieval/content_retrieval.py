@@ -39,7 +39,7 @@ resource_fields = {
 
 class PodcastList(Resource):
     def get(self):
-        response = requests.get('http://127.0.0.1:9000/cache_podcasts')
+        response = requests.get('http://cache_service:9000/cache_podcasts')
         podcast_list = []
         if response.json() is None:
             data = [row.__dict__ for row in PodcastModel.query.all()]
@@ -48,7 +48,7 @@ class PodcastList(Resource):
                 new_element = {key: val for key,
                                val in element.items() if key != '_sa_instance_state'}
                 podcast_list.append(new_element)
-            requests.post('http://127.0.0.1:9000/cache_podcasts', json=podcast_list)
+            requests.post('http://cache_service:9000/cache_podcasts', json=podcast_list)
             return podcast_list
         else:
             print("Response: ", response.json())
@@ -58,7 +58,7 @@ class PodcastList(Resource):
 class Podcast(Resource):
     # @marshal_with(resource_fields)
     def get(self, podcast_id):
-        response = requests.get('http://127.0.0.1:9000/cache_podcast/' + str(podcast_id))
+        response = requests.get('http://cache_service:9000/cache_podcast/' + str(podcast_id))
         print("Response after Get by id: ", response.json())
         if response.json() is None:
             result = PodcastModel.query.filter_by(id=podcast_id).first()
@@ -66,7 +66,7 @@ class Podcast(Resource):
             dict_result = result.__dict__
             new_element = {key: val for key, val in dict_result.items() if key != '_sa_instance_state'}
             print("New element:", new_element)
-            requests.post('http://127.0.0.1:9000/cache_podcast/' + str(podcast_id), json=new_element)
+            requests.post('http://cache_service:9000/cache_podcast/' + str(podcast_id), json=new_element)
             if not new_element:
                 abort(409, message="No podcast with that id..")
             return new_element
@@ -90,6 +90,6 @@ api.add_resource(Podcast, "/podcast/<int:podcast_id>")
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
-    personal_data = {"name": "content_retrieval", "address": "http://127.0.0.1", "port": 5000, "status": "active"}
-    requests.post('http://127.0.0.1:8008/register_me', json=personal_data)
+    personal_data = {"name": "content_retrieval", "address": "http://content_retrieval", "port": 5000, "status": "active"}
+    requests.post('http://service_discovery:8008/register_me', json=personal_data)
     print("Register request was sent")

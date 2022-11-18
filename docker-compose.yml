@@ -20,6 +20,8 @@ services:
       - "8008:8008"
     cap_add:
       - NET_ADMIN
+    depends_on:
+      - mongodb
 
   content_retrieval:
     build:

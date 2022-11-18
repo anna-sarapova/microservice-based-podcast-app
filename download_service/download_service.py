@@ -47,7 +47,7 @@ class GetChunk(Resource):
 
 
 def get_file_name(podcast_id):
-    podcast_data = requests.get("http://127.0.0.1:5000/podcast/" + str(podcast_id))
+    podcast_data = requests.get("http://content_retrieval:5000/podcast/" + str(podcast_id))
     print(podcast_data.json())
     response = podcast_data.json()
     response_file_name = response["podcast_file"]
@@ -75,6 +75,6 @@ api.add_resource(GetChunk, "/download/<int:podcast_id>/<int:chunk_id>")
 
 if __name__ == "__main__":
     app.run(port=5005, debug=True)
-    personal_data = {"name": "download_service", "address": "http://127.0.0.1", "port": 5005, "status": "active"}
-    requests.post('http://127.0.0.1:8008/register_me', json=personal_data)
+    personal_data = {"name": "download_service", "address": "http://download_service", "port": 5005, "status": "active"}
+    requests.post('http://service_discovery:8008/register_me', json=personal_data)
     print("Register request was sent")
