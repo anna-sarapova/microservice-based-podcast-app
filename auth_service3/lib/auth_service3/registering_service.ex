@@ -5,7 +5,7 @@ defmodule RegisteringService do
   @service_discovery_address "http://service_discovery:8008/register_me"
   @request_body %{
     name: "auth_service",
-    address: "auth_service3",
+    address: "http://auth_service3",
     port: 8082,
     status: "active"}
 

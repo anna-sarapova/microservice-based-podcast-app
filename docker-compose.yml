@@ -20,8 +20,6 @@ services:
       - "8008:8008"
     cap_add:
       - NET_ADMIN
-    depends_on:
-      - mongodb
 
   content_retrieval:
     build:
@@ -63,6 +61,7 @@ services:
       - NET_ADMIN
     depends_on:
       - service_discovery
+      - mongodb
 
   auth_service2:
     build:
@@ -73,6 +72,7 @@ services:
       - NET_ADMIN
     depends_on:
       - service_discovery
+      - mongodb
 
   auth_service3:
     build:
@@ -83,6 +83,7 @@ services:
       - NET_ADMIN
     depends_on:
       - service_discovery
+      - mongodb
 
   gateway_service:
     build:
@@ -91,10 +92,3 @@ services:
       - "8070:8070"
     cap_add:
       - NET_ADMIN
-    depends_on:
-      - content_retrieval
-      - download_service
-      - auth_service
-      - auth_service2
-      - auth_service3
-      - service_discovery

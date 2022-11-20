@@ -25,7 +25,7 @@ defmodule GatewayService.DownloadPodcastChunkPlug do
         #        Logger.info(inspect(service_registry), ansi_color: :yellow)]
         params = conn.path_params
 #        Logger.info("params #{params}", ansi_color: :blue)
-        request_url = find_service(service_registry, params["podcast_id"]. params["chunk_id"])
+        request_url = find_service(service_registry, params["podcast_id"], params["chunk_id"])
         case HTTPoison.get(request_url) do
           {:ok, response} ->
             Logger.info("response: #{inspect(response)}", ansi_color: :green)
