@@ -9,7 +9,7 @@ defmodule GatewayService.PodcastByIdPlug do
     #    Stop retrying after 5 seconds
     expiry: 5_000
   }
-  @service_discovery_address "http://service_discovery:8008/register_me"
+  @service_discovery_address "http://service_discovery:8008/service_registry"
   @service_name "content_retrieval"
 
   def get_podcast_by_id(conn) do
@@ -20,7 +20,7 @@ defmodule GatewayService.PodcastByIdPlug do
     case HTTPoison.get(@service_discovery_address) do
       {:ok, response} ->
         service_registry = Jason.decode!(response.body)
-        #        Logger.info(inspect(service_registry), ansi_color: :yellow)]
+        Logger.info(inspect(service_registry), ansi_color: :yellow)
         params = conn.path_params
         request_url = find_service(service_registry, params["id"])
         case HTTPoison.get(request_url) do
@@ -44,6 +44,7 @@ defmodule GatewayService.PodcastByIdPlug do
 
   def find_service(service_registry, params) do
     services = Enum.filter(service_registry, fn service -> service["name"] == @service_name end)
+    Logger.info("services: #{inspect(services)}", ansi_color: :yellow)
     service = Enum.at(services, rem(System.unique_integer([:positive, :monotonic]), 3))
     request_url = "#{service["address"]}:#{service["port"]}/podcast/#{params}"
   end

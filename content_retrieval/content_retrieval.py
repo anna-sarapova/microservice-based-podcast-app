@@ -89,7 +89,7 @@ api.add_resource(PodcastList, "/podcasts")
 api.add_resource(Podcast, "/podcast/<int:podcast_id>")
 
 if __name__ == "__main__":
-    app.run(port=5000, debug=True)
     personal_data = {"name": "content_retrieval", "address": "http://content_retrieval", "port": 5000, "status": "active"}
     requests.post('http://service_discovery:8008/register_me', json=personal_data)
     print("Register request was sent")
+    app.run(host="content_retrieval" ,port=5000, debug=True)

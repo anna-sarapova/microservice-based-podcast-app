@@ -20,6 +20,7 @@ defmodule AuthService3.Application do
         [
           name: :mongo,
           database: Application.get_env(:auth_service3, :database),
+          seeds: Application.get_env(:auth_service3, :seeds),
           pool_size: Application.get_env(:auth_service3, :pool_size)
         ]
       },

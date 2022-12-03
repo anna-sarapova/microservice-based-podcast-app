@@ -10,5 +10,5 @@ RUN mix deps.get && \
     mix deps.compile && \
     mix clean && mix deps.clean --unused
 
-CMD ["iex", "-S", "mix", "run"]
+CMD ["mix", "run", "--no-halt"]
 EXPOSE 8081

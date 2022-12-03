@@ -91,5 +91,5 @@ if __name__ == "__main__":
     scheduler = BackgroundScheduler()
     scheduler.add_job(delete_routine, 'interval', seconds=20)
     scheduler.start()
-    app.run(port=9000, debug=True)
+    app.run(host="cache_service" ,port=9000, debug=True)
 

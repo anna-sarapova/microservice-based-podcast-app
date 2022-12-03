@@ -9,7 +9,7 @@ defmodule GatewayService.RegisterPlug do
     #    Stop retrying after 5 seconds
     expiry: 5_000
   }
-  @service_discovery_address "http://service_discovery:8008/register_me"
+  @service_discovery_address "http://service_discovery:8008/service_registry"
   @service_name "auth_service"
 
   def register_user(conn) do

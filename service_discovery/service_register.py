@@ -45,7 +45,7 @@ api.add_resource(RegisterMe, "/register_me")
 api.add_resource(RequestedList, "/service_registry")
 
 if __name__ == "__main__":
-    app.run(port=8008, debug=True)
+    app.run(host="service_discovery", port=8008, debug=True)
 
 
 

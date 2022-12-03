@@ -1,19 +1,8 @@
 version: "3.9"
 
 services:
-  mongodb:
-    image: mongo
-    container_name: mongodb
-    ports:
-      - "27017:27017"
-    restart: unless-stopped
-    healthcheck:
-      test: test $$(echo "rs.initiate({_id:\"rs0\",members:[{_id:0,host:\"localhost:27017\"}]}).ok || rs.status().ok" | mongo --port 27017 --quiet) -eq 1
-      interval: 10s
-      start_period: 30s
-    command: "mongod --bind_ip_all --replSet rs0"
-
   service_discovery:
+    image: service_discovery
     build:
       context: service_discovery
     ports:
@@ -21,7 +10,70 @@ services:
     cap_add:
       - NET_ADMIN
 
+  mongo1:
+    hostname: mongo1
+    image: mongo
+    expose:
+      - 27017
+    ports:
+      - 30001:27017
+    restart: always
+    command: mongod --replSet my-mongo-set
+  mongo2:
+    hostname: mongo2
+    image: mongo
+    expose:
+      - 27017
+    ports:
+      - 30002:27017
+    restart: always
+    command: mongod --replSet my-mongo-set
+  mongo3:
+    hostname: mongo3
+    image: mongo
+    expose:
+      - 27017
+    ports:
+      - 30003:27017
+    restart: always
+    command: mongod --replSet my-mongo-set
+
+  # finally, we can define the initialization server
+  # this runs the `rs.initiate` command to intialize
+  # the replica set and connect the three servers to each other
+  mongoinit:
+    image: mongo
+    # this container will exit after executing the command
+    restart: on-failure:5
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+    command: >
+      mongo --host mongo1:27017 --eval 'db = (new Mongo("mongo1:27017")).getDB("auth_service_db");
+      config = {
+      "_id" : "my-mongo-set",
+      "members" : [
+        {
+          "_id" : 0,
+          "host" : "mongo1:27017"
+        },
+        {
+          "_id" : 1,
+          "host" : "mongo2:27017"
+        },
+        {
+          "_id" : 2,
+          "host" : "mongo3:27017"
+        }
+      ]
+      };
+      rs.initiate(config);
+      '
+
   content_retrieval:
+    image: content_retrieval
+    restart: on-failure:5
     build:
       context: content_retrieval
     ports:
@@ -32,6 +84,8 @@ services:
       - service_discovery
 
   download_service:
+    image: download_service
+    restart: on-failure:5
     build:
       context: download_service
     ports:
@@ -43,6 +97,8 @@ services:
       - content_retrieval
 
   cache_service:
+    image: cache_service
+    restart: on-failure:5
     build:
       context: cache_service
     ports:
@@ -53,6 +109,8 @@ services:
       - content_retrieval
 
   auth_service:
+    image: auth_service
+    restart: on-failure:5
     build:
       context: auth_service
     ports:
@@ -61,9 +119,11 @@ services:
       - NET_ADMIN
     depends_on:
       - service_discovery
-      - mongodb
+      - mongoinit
 
   auth_service2:
+    image: auth_service2
+    restart: on-failure:5
     build:
       context: auth_service2
     ports:
@@ -72,9 +132,11 @@ services:
       - NET_ADMIN
     depends_on:
       - service_discovery
-      - mongodb
+      - mongoinit
 
   auth_service3:
+    image: auth_service3
+    restart: on-failure:5
     build:
       context: auth_service3
     ports:
@@ -83,9 +145,11 @@ services:
       - NET_ADMIN
     depends_on:
       - service_discovery
-      - mongodb
+      - mongoinit
 
   gateway_service:
+    image: gateway_service
+    restart: on-failure:5
     build:
       context: gateway_service
     ports:
