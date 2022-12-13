@@ -5,6 +5,8 @@ defmodule GatewayService.Router do
   # Bring Plug.Router module into scope
   use Plug.Router
 
+  plug MetricsExporter
+
   # Attach the Logger to log incoming requests
   plug(Plug.Logger)
 

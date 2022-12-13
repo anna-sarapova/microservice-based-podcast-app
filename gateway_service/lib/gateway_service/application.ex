@@ -18,6 +18,7 @@ defmodule GatewayService.Application do
   @impl true
   def start(_type, _args) do
     ExternalService.start(@fuse_name, @fuse_options)
+    MetricsSetup.setup()
     children = [
       {
         Plug.Cowboy,

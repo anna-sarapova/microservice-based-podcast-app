@@ -27,6 +27,8 @@ defmodule GatewayService.MixProject do
       {:jason, "~> 1.3"},
       {:httpoison, "~> 1.8"},
       {:external_service, "~> 1.1"},
+      {:prometheus_ex, "~> 3.0"},
+      {:prometheus_plugs, "~> 1.1"}
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
     ]
