@@ -5,6 +5,8 @@ defmodule GatewayService.Router do
   # Bring Plug.Router module into scope
   use Plug.Router
 
+  plug PromEx.Plug, prom_ex_module: GatewayService.PromEx
+
   # Attach the Logger to log incoming requests
   plug(Plug.Logger)
 
