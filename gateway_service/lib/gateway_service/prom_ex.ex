@@ -61,7 +61,8 @@ defmodule GatewayService.PromEx do
     [
       # PromEx built in plugins
       Plugins.Application,
-      Plugins.Beam
+      Plugins.Beam,
+      {PromEx.Plugins.PlugCowboy, routers: [GatewayService.Router]}
       # {Plugins.Phoenix, router: GatewayServiceWeb.Router, endpoint: GatewayServiceWeb.Endpoint},
       # Plugins.Ecto,
       # Plugins.Oban,
@@ -86,7 +87,8 @@ defmodule GatewayService.PromEx do
     [
       # PromEx built in Grafana dashboards
       {:prom_ex, "application.json"},
-      {:prom_ex, "beam.json"}
+      {:prom_ex, "beam.json"},
+      {:prom_ex, "plug_cowboy.json"}
       # {:prom_ex, "phoenix.json"},
       # {:prom_ex, "ecto.json"},
       # {:prom_ex, "oban.json"},

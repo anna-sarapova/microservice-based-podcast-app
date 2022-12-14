@@ -1,3 +1,3 @@
 import Config
 
-config :gatewaay_service, port: 81
+config :gateway_service, port: 81

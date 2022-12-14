@@ -12,5 +12,4 @@ scrape_configs:
 
   - job_name: 'elixir_app'
     static_configs:
-      - targets:
-          - 'gateway_service:8070'
+      - targets:  ['gateway_service:8070']

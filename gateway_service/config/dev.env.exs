@@ -10,9 +10,9 @@ config :gateway_service, GatewayService.PromEx,
               host: "http://grafana:3000",
               username: "admin",
               password: "admin",
-              auth_token: "eyJrIjoiNTQybTY1bjFiTjByck41UE5kdDluek5jODdxcDhjbEoiLCJuIjoiUEFEX2xhYiIsImlkIjoxfQ==",
+              auth_token: "auth_token",
               upload_dashboards_on_start: true,
-              folder_name: "Notes Dashboards",
+              folder_name: "Notes_Dashboards",
               annotate_app_lifecycle: true
        ],
        metrics_server: :disabled
